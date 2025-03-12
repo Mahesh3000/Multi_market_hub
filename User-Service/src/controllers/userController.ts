@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 export const signup = async (req: Request, res: Response) => {
     try {
+        // Sanitizes and checks the schema from the user with the defined schema
         const validate = userSchema.safeParse(req.body);
         if (!validate.success) {
             return res.status(400).json({
@@ -16,8 +17,11 @@ export const signup = async (req: Request, res: Response) => {
         console.log(validate);
         const { firstname, lastname, email, password, isAdmin } = validate.data;
         const saltRounds = 10
+
+        // Hashing the password using bcrypt library
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         console.log(hashedPassword);
+        // Creating the user in teh database
         const newUser = await prismaClient.user.create({
             data: {
                 id: uuidv4(),
@@ -40,6 +44,7 @@ export const signin = async (req: Request, res: Response) => {
         console.log("Login");
 
         const { email, password } = req.body
+        // Validates whether user exists in the database
         const user = await prismaClient.user.findUnique({
             where: {
                 email: email
@@ -48,6 +53,7 @@ export const signin = async (req: Request, res: Response) => {
         console.log(user, "Checking");
 
         if (user) {
+            // Verifies the password sent by the user and the pswd saved in teh database
             const checkPassword = await bcrypt.compare(password, user.password);
             console.log(checkPassword);
             if (checkPassword) {
