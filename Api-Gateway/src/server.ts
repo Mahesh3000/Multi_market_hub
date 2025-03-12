@@ -64,11 +64,11 @@ app.use('/userService', proxy(process.env.USER_SERVICE_LOGIN, {
         return proxyReqOpts;
     },
     proxyReqPathResolver: (req) => {
-        // const url = req.url.split('');
         console.log(req.url, "68");
         return req.url;
     }
 }))
+
 
 app.listen(port, (err) => {
     if (!err) {
