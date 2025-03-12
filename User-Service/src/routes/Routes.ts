@@ -1,8 +1,9 @@
 import express from "express";
-import { signup } from "../controllers/userController"; // Assuming your controller is in this file
+import { signin, signup } from "../controllers/userController";
+
 const router = express.Router();
 
-// Define the signup route
 router.post('/signup', signup);
+router.post('/signin', signin);
 
 export default router;
