@@ -1,11 +1,16 @@
 import express from "express";
-import { getAllUsers, getProducts } from "../controllers/productController";
+import {
+  createProduct,
+  getProductsController,
+  //   getAllUsers,
+  //   getProducts,
+} from "../controllers/productController";
+// import upload from "../middleware/upload";
+import { uploadSingleFile } from "../middleware/fileUploadMiddleware";
 
 const router = express.Router();
 
-// Get all users
-router.get("/users", getAllUsers);
-
-router.get("/products", getProducts);
+router.post("/add", uploadSingleFile, createProduct);
+router.get("/products", getProductsController);
 
 export default router;
