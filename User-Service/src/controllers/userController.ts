@@ -3,7 +3,12 @@ import { prismaClient } from "../db";
 import userSchema from "../UserSchema";
 import bcrypt from "bcrypt"
 import { v4 as uuidv4 } from 'uuid'
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
+
+dotenv.config();
+const secret = process.env.SECRET_KEY as string
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -40,9 +45,9 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const signin = async (req: Request, res: Response) => {
+
     try {
         console.log("Login");
-
         const { email, password } = req.body
         // Validates whether user exists in the database
         const user = await prismaClient.user.findUnique({
@@ -51,13 +56,14 @@ export const signin = async (req: Request, res: Response) => {
             }
         })
         console.log(user, "Checking");
-
         if (user) {
             // Verifies the password sent by the user and the pswd saved in teh database
             const checkPassword = await bcrypt.compare(password, user.password);
             console.log(checkPassword);
             if (checkPassword) {
-                res.status(200).json({ message: "User Logged in succesfull" })
+                const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
+                res.cookie("token", token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+                res.status(200).json({ message: "User Logged in succesfull" });
             }
             else {
                 res.status(401).json({
@@ -70,5 +76,17 @@ export const signin = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error(error, "Internal Error");
+    }
+}
+
+export const landingPage = (req: Request, res: Response) => {
+    const token = req.cookies.token;
+    try {
+        const verifyToken = jwt.verify(token, secret);
+        if (verifyToken) {
+            res.status(200).json({ message: "Welcome to landing page" });
+        }
+    } catch (error) {
+        console.error(error, "While landing into Home page");
     }
 }
