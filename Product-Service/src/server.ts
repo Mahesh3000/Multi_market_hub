@@ -10,9 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// app.use("/", productRoutes);
-
-app.use("/api", productRoutes); // Add a prefix like /api
+app.use("/api", productRoutes);
 
 app.get("/", (req, res) => {
   res.send(`PRODUCT SERVICE IS RUNNING AT ${PORT}`);
