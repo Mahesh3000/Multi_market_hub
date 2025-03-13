@@ -19,8 +19,19 @@ model Product {
   description String?
   price       Float
   stock       Int
+  image       String?
   storeId     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
+
+model User{
+  id String
+  firstname String
+  lastname String
+  email String @unique
+  password String
+  createdAt DateTime @default(now())
+  isAdmin Boolean
+}

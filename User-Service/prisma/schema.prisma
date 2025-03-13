@@ -7,16 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum MeasurementUnit {
-  GRAM
-  KILOGRAM
-  LITER
-  MILLILITER
-  UNIT
-}
 
 model User {
-  id        String
+  id        String   @id
   firstname String
   lastname  String
   email     String   @unique
@@ -25,15 +18,3 @@ model User {
   isAdmin   Boolean
 }
 
-model Product {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  price       Float
-  stock       Int
-  storeId     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  image       String?
-  measuredIn  MeasurementUnit
-}
