@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
-import { Product } from "../models/productmodel"; // Import your Product interface
+import { Product } from "../models/productmodel";
 import { addProduct, getProducts } from "../services/productservices";
 import { uploadFileToS3 } from "../services/fileUploadService";
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     let imageUrl: string | undefined = undefined;
 
@@ -18,7 +21,7 @@ export const createProduct = async (req: Request, res: Response) => {
       price: parseFloat(req.body.price),
       stock_quantity: parseInt(req.body.stock_quantity),
       image_url: imageUrl,
-      store_id: req.body.store_id,
+      store_id: req.params.storeId, // Assuming storeId is passed in URL params
     };
 
     const newProduct = await addProduct(productData);
@@ -28,7 +31,10 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductsController = async (req: Request, res: Response) => {
+export const getProductsController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { storeId } = req.params;
     const products = await getProducts(storeId);

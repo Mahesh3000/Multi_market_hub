@@ -7,7 +7,7 @@ export const addProduct = async (product: Product) => {
 
   const query = `
     INSERT INTO products (name, description, price, stock_quantity, image_url,store_id)
-    VALUES ($1, $2, $3, $4, $5)
+    VALUES ($1, $2, $3, $4, $5,$6)
     RETURNING *;
   `;
 
