@@ -10,11 +10,6 @@ export const createProduct = async (
   try {
     let imageUrl: string | undefined = undefined;
 
-    if (req.file) {
-      imageUrl = await uploadFileToS3(req.file);
-      console.log("imageUrl", imageUrl);
-    }
-
     const productData: Product = {
       name: req.body.name,
       description: req.body.description,
@@ -25,6 +20,17 @@ export const createProduct = async (
     };
 
     const newProduct = await addProduct(productData);
+
+    if (req.file) {
+      const storeId = req.params.storeId;
+      const productId = newProduct.id;
+
+      imageUrl = await uploadFileToS3(req.file, storeId, productId);
+      console.log("imageUrl", imageUrl);
+
+      newProduct.image_url = imageUrl;
+    }
+
     res.status(201).json({ success: true, data: newProduct });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to add product" });

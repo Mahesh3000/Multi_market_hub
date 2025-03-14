@@ -5,8 +5,14 @@ import s3 from "../config/s3";
 
 dotenv.config();
 
-export const uploadFileToS3 = async (file: Express.Multer.File) => {
-  const fileName = `${Date.now()}-${file.originalname}`;
+export const uploadFileToS3 = async (
+  file: Express.Multer.File,
+  storeId: string,
+  productId: string
+) => {
+  const fileName = `${storeId}/products/${productId}/${Date.now()}-${
+    file.originalname
+  }`;
   const bucketName = process.env.AWS_S3_BUCKET_NAME!;
 
   const command = new PutObjectCommand({
