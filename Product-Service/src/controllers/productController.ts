@@ -18,6 +18,7 @@ export const createProduct = async (req: Request, res: Response) => {
       price: parseFloat(req.body.price),
       stock_quantity: parseInt(req.body.stock_quantity),
       image_url: imageUrl,
+      store_id: req.body.store_id,
     };
 
     const newProduct = await addProduct(productData);
@@ -29,7 +30,8 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const getProductsController = async (req: Request, res: Response) => {
   try {
-    const products = await getProducts(); // Call the service to get all products
+    const { storeId } = req.params;
+    const products = await getProducts(storeId);
     res.status(200).json({ success: true, data: products });
   } catch (error) {
     res
