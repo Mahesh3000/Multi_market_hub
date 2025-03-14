@@ -1,41 +1,40 @@
 import { Request, Response } from "express";
-import { prismaClient } from "../db";
+
 import userSchema from "../UserSchema";
 import bcrypt from "bcrypt"
 import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { basicUser, createUser, login } from '../Models/UserModel'
+// import { createUser, login } from '@/Models/UserModel'
+import { boolean } from "zod";
 
 
 dotenv.config();
+
+
 const secret = process.env.SECRET_KEY as string
+
 
 export const signup = async (req: Request, res: Response) => {
     try {
-        // Sanitizes and checks the schema from the user with the defined schema
         const validate = userSchema.safeParse(req.body);
         if (!validate.success) {
             return res.status(400).json({
                 msg: "Invalid request data",
             });
         }
-        console.log(validate);
-        const { firstname, lastname, email, password, isAdmin } = validate.data;
+        const { firstname, lastname, email, password, isAdmin = false } = validate.data;
         const saltRounds = 10
-
-        // Hashing the password using bcrypt library
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        console.log(hashedPassword);
-        // Creating the user in teh database
-        const newUser = await prismaClient.user.create({
-            data: {
-                id: uuidv4(),
-                firstname,
-                lastname,
-                email,
-                password: hashedPassword,
-                isAdmin: isAdmin ?? false,
-            },
+        const generateUserUUID = uuidv4();
+        const newUser = await createUser({
+            id: generateUserUUID,
+            firstname,
+            lastname,
+            email,
+            password: hashedPassword,
+            isAdmin,
         });
         return res.status(201).json({ message: "User Created Successfully", id: newUser.id });
     } catch (error) {
@@ -45,22 +44,18 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const signin = async (req: Request, res: Response) => {
-
     try {
         console.log("Login");
-        const { email, password } = req.body
+
+        const { password } = req.body as basicUser
         // Validates whether user exists in the database
-        const user = await prismaClient.user.findUnique({
-            where: {
-                email: email
-            }
-        })
-        console.log(user, "Checking");
+        const user = await login(req.body);
         if (user) {
             // Verifies the password sent by the user and the pswd saved in teh database
             const checkPassword = await bcrypt.compare(password, user.password);
             console.log(checkPassword);
             if (checkPassword) {
+                // why should we use two expiry in token and cookie
                 const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
                 res.cookie("token", token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
                 res.status(200).json({ message: "User Logged in succesfull" });
@@ -79,6 +74,7 @@ export const signin = async (req: Request, res: Response) => {
     }
 }
 
+
 export const landingPage = (req: Request, res: Response) => {
     const token = req.cookies.token;
     try {
@@ -90,3 +86,4 @@ export const landingPage = (req: Request, res: Response) => {
         console.error(error, "While landing into Home page");
     }
 }
+
