@@ -2,15 +2,23 @@ import pool from "../config/db";
 import { Product } from "../models/productmodel";
 
 export const addProduct = async (product: Product) => {
-  const { name, description, price, stock_quantity, image_url } = product;
+  const { name, description, price, stock_quantity, image_url, store_id } =
+    product;
 
   const query = `
-    INSERT INTO products (name, description, price, stock_quantity, image_url)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO products (name, description, price, stock_quantity, image_url,store_id)
+    VALUES ($1, $2, $3, $4, $5,$6)
     RETURNING *;
   `;
 
-  const values = [name, description, price, stock_quantity, image_url];
+  const values = [
+    name,
+    description,
+    price,
+    stock_quantity,
+    image_url,
+    store_id,
+  ];
 
   try {
     const result = await pool.query(query, values);
@@ -21,13 +29,18 @@ export const addProduct = async (product: Product) => {
   }
 };
 
-export const getProducts = async (): Promise<Product[]> => {
-  const query = "SELECT * FROM products"; // Fetch all products from the products table
+export const getProducts = async (storeId: string) => {
+  const query = `
+    SELECT * FROM products WHERE store_id = $1;
+  `;
+
+  const values = [storeId];
+
   try {
-    const result = await pool.query(query);
+    const result = await pool.query(query, values);
     return result.rows;
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching products for store:", error);
     throw error;
   }
 };
