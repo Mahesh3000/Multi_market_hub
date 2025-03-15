@@ -51,13 +51,14 @@ export const signin = async (req: Request, res: Response) => {
         // Validates whether user exists in the database
         const user = await login(req.body);
         if (user) {
-            // Verifies the password sent by the user and the pswd saved in teh database
+            // Verifies the password sent by the user and the pswd saved in the database
             const checkPassword = await bcrypt.compare(password, user.password);
-            console.log(checkPassword);
             if (checkPassword) {
+                const jwtTokenID = user.id + user.email
                 // why should we use two expiry in token and cookie
-                const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
-                res.cookie("token", token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+                const token = jwt.sign({ id: jwtTokenID }, secret, { expiresIn: '2m' });
+                console.log(token);
+                res.cookie("token", token, { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 });
                 res.status(200).json({ message: "User Logged in succesfull" });
             }
             else {
@@ -83,6 +84,7 @@ export const landingPage = (req: Request, res: Response) => {
             res.status(200).json({ message: "Welcome to landing page" });
         }
     } catch (error) {
+        res.status(419).json({ message: "JWT expired" });
         console.error(error, "While landing into Home page");
     }
 }

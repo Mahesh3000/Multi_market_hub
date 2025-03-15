@@ -1,11 +1,11 @@
 import pool from '../config/db'
 
-export interface basicUser {
+export interface BasicUser {
     email: string,
     password: string
 }
 
-export interface User extends basicUser {
+export interface User extends BasicUser {
     id: string,
     firstname: string,
     lastname: string,

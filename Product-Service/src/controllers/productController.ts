@@ -7,7 +7,7 @@ export const createProduct = async (req: Request, res: Response) => {
   try {
     let imageUrl: string | undefined = undefined;
     if (req.file) {
-      imageUrl = await uploadFileToS3(req.file);
+      imageUrl = await uploadFileToS3(req.file);//move to service 
       console.log("imageUrl", imageUrl);
     }
 
