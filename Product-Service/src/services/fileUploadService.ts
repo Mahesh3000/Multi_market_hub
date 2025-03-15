@@ -24,7 +24,8 @@ export const uploadFileToS3 = async (
 
   try {
     await s3.send(command);
-    return `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    const url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    return url;
   } catch (error) {
     throw new Error("Failed to upload file to S3");
   }
