@@ -10,6 +10,11 @@ export const createProduct = async (
   try {
     let imageUrl: string | undefined = undefined;
 
+    if (req.file) {
+      imageUrl = await uploadFileToS3(req.file);
+      console.log("imageUrl", imageUrl);
+    }
+
     const productData: Product = {
       name: req.body.name,
       description: req.body.description,
